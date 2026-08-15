@@ -1,0 +1,1009 @@
+import os
+import webbrowser
+
+html_code = """<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎮 NCNU 資管系新生選課通關攻略 | djieee 所有</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&family=Chakra+Petch:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0d14;
+      --card-bg: #151928;
+      --card-border: #28334e;
+      --primary: #00ffcc;
+      --primary-glow: rgba(0, 255, 204, 0.35);
+      --secondary: #ff007f;
+      --secondary-glow: rgba(255, 0, 127, 0.35);
+      --accent-yellow: #ffe600;
+      --accent-blue: #00b4d8;
+      --accent-purple: #9d4edd;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --pixel-font: 'Press Start 2P', monospace;
+      --sans-font: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --display-font: 'Chakra Petch', 'Noto Sans TC', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--sans-font);
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(157, 78, 221, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(0, 255, 204, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(11, 13, 20, 0.95), rgba(11, 13, 20, 0.95)),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 204, 0.02) 3px, rgba(0, 255, 204, 0.02) 3px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 100% 6px;
+      min-height: 100vh;
+      padding-bottom: env(safe-area-inset-bottom, 40px);
+    }
+
+    /* 復古螢幕微掃描線（不阻擋觸控） */
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 4px, 6px 100%;
+      z-index: 9999;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 16px 40px;
+    }
+
+    /* Header 樣式 */
+    header {
+      text-align: center;
+      padding: 24px 8px 16px;
+    }
+
+    .game-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--pixel-font);
+      font-size: clamp(9px, 2.5vw, 11px);
+      color: var(--accent-yellow);
+      background: rgba(255, 230, 0, 0.12);
+      border: 1px solid var(--accent-yellow);
+      padding: 6px 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 12px rgba(255, 230, 0, 0.2);
+    }
+
+    h1.title {
+      font-family: var(--display-font);
+      font-size: clamp(1.6rem, 5.5vw, 2.8rem);
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 0 15px var(--primary-glow), 2px 2px 0px #ff007f;
+      letter-spacing: 0.5px;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: clamp(0.9rem, 3vw, 1.05rem);
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 20px;
+    }
+
+    /* HUD 狀態面板 */
+    .hud-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      background: rgba(21, 25, 40, 0.85);
+      border: 1.5px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      margin-bottom: 24px;
+    }
+
+    .hud-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .hud-label {
+      font-family: var(--pixel-font);
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hud-val {
+      font-family: var(--display-font);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #0b0d14;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #28334e;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+
+    .fill-hp { width: 100%; background: linear-gradient(90deg, #ff0055, #ff5500); }
+    .fill-mp { width: 85%; background: linear-gradient(90deg, #00b4d8, #00ffcc); }
+
+    /* 手機友善的導航切換列 */
+    .nav-wrapper {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 8px;
+      padding: 4px 2px 10px;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      font-family: var(--display-font);
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+      font-weight: 700;
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1.5px solid var(--card-border);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(0, 255, 204, 0.2), rgba(255, 0, 127, 0.2));
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    /* 內容卡片 */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 14px;
+      border-bottom: 1.5px solid var(--card-border);
+      padding-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: var(--display-font);
+      font-size: clamp(1.2rem, 4vw, 1.45rem);
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .section-tag {
+      font-family: var(--pixel-font);
+      font-size: 9px;
+      padding: 3px 8px;
+      background: rgba(0, 255, 204, 0.12);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      border-radius: 4px;
+    }
+
+    .quest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .quest-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (hover: hover) {
+      .quest-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 6px 18px rgba(0, 255, 204, 0.12);
+        transform: translateY(-3px);
+      }
+    }
+
+    .quest-card.required { border-left: 4px solid var(--secondary); }
+    .quest-card.elective { border-left: 4px solid var(--primary); }
+    .quest-card.special { border-left: 4px solid var(--accent-yellow); }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 6px;
+    }
+
+    .course-code {
+      font-family: var(--pixel-font);
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    .course-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .badge-req { background: rgba(255, 0, 127, 0.15); color: var(--secondary); border: 1px solid var(--secondary); }
+    .badge-ele { background: rgba(0, 255, 204, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+    .badge-gen { background: rgba(255, 230, 0, 0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+
+    .course-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .course-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.84rem;
+      color: var(--accent-blue);
+      margin-bottom: 10px;
+    }
+
+    .course-desc {
+      font-size: 0.88rem;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .loot-tip {
+      background: rgba(0, 255, 204, 0.08);
+      border: 1px dashed var(--primary);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #7ef5da;
+      margin-top: auto;
+    }
+
+    .boss-warning {
+      background: rgba(255, 0, 85, 0.08);
+      border: 1px dashed #ff0055;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #ff7597;
+      margin-top: auto;
+    }
+
+    /* NPC 對話提示盒 */
+    .npc-dialog {
+      background: linear-gradient(135deg, rgba(21, 25, 40, 0.95), rgba(28, 34, 58, 0.95));
+      border: 1.5px solid var(--accent-yellow);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(255, 230, 0, 0.1);
+    }
+
+    .npc-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .npc-avatar { font-size: 24px; }
+    .npc-name { font-family: var(--pixel-font); font-size: 10px; color: var(--accent-yellow); }
+    .npc-text { font-size: 0.9rem; color: var(--text-main); line-height: 1.55; }
+
+    /* 表格響應式包裝 */
+    .pixel-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    table.pixel-table {
+      width: 100%;
+      min-width: 580px;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    table.pixel-table th {
+      background: rgba(40, 51, 78, 0.6);
+      color: var(--primary);
+      font-family: var(--display-font);
+      font-weight: 700;
+      padding: 12px 14px;
+      border-bottom: 1.5px solid var(--card-border);
+    }
+
+    table.pixel-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(40, 51, 78, 0.4);
+      color: var(--text-main);
+    }
+
+    /* 戰力試算器 */
+    .sim-box {
+      background: var(--card-bg);
+      border: 1.5px solid var(--primary);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+      margin-bottom: 25px;
+    }
+
+    .sim-checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .sim-item {
+      background: rgba(11, 13, 20, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 48px;
+    }
+
+    .sim-item:active {
+      background: rgba(0, 255, 204, 0.1);
+    }
+
+    .sim-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--primary);
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .sim-item input[type="checkbox"]:checked {
+      background: var(--primary);
+    }
+
+    .sim-item input[type="checkbox"]:checked::after {
+      content: '✔';
+      position: absolute;
+      color: #0b0d14;
+      font-size: 13px;
+      font-weight: 900;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .sim-item-title { font-size: 0.92rem; font-weight: 700; color: #fff; }
+    .sim-item-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+    .sim-score-card {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .score-num { font-family: var(--pixel-font); font-size: 1.45rem; color: var(--accent-yellow); }
+    .score-status { font-family: var(--display-font); font-size: 0.95rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; }
+    .status-good { background: rgba(0, 255, 204, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+    .status-danger { background: rgba(255, 0, 85, 0.15); color: #ff0055; border: 1px solid #ff0055; }
+    .status-low { background: rgba(255, 170, 0, 0.15); color: #ffaa00; border: 1px solid #ffaa00; }
+
+    footer {
+      text-align: center;
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1.5px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .footer-author {
+      font-family: var(--pixel-font);
+      font-size: 10px;
+      color: var(--primary);
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+
+  <div class="container">
+    <header>
+      <div class="game-badge">🕹️ NCNU IM QUEST LOG 2026</div>
+      <h1 class="title">國立暨南國際大學 資管系<br>大一新生選課通關攻略</h1>
+      <p class="subtitle">歡迎來到暨大資管！本指南為 Lv.1 新生冒險者打造，一次掌握必修、通識、體育修練與排課密技。</p>
+    </header>
+
+    <!-- HUD Status -->
+    <div class="hud-bar">
+      <div class="hud-item">
+        <div class="hud-label"><span>👤 角色狀態</span></div>
+        <div class="hud-val">Lv.1 資管小大一 (Rookie)</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label"><span>❤️ 畢業目標學分</span> <span style="color:var(--primary);">128 Credits</span></div>
+        <div class="progress-bar-container"><div class="progress-bar-fill fill-hp"></div></div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label"><span>⚡ 精神力 MP (建議負載)</span> <span style="color:var(--accent-blue);">18~22 學分</span></div>
+        <div class="progress-bar-container"><div class="progress-bar-fill fill-mp"></div></div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-wrapper">
+      <div class="nav-tabs" id="tabNav">
+        <button class="tab-btn active" data-tab="main-quest">⚔️ 大一主線必修</button>
+        <button class="tab-btn" data-tab="gen-edu">🏛️ 通識副本地圖</button>
+        <button class="tab-btn" data-tab="pe-sports">🏃 體育修練道場</button>
+        <button class="tab-btn" data-tab="timeline">⏳ 選課戰鬥時程</button>
+        <button class="tab-btn" data-tab="simulator">📊 戰力學分試算器</button>
+      </div>
+    </div>
+
+    <!-- Tab 1: 主線必修 -->
+    <div id="main-quest" class="tab-content active">
+      <div class="npc-dialog">
+        <div class="npc-header">
+          <div class="npc-avatar">🧙‍♂️</div>
+          <div>
+            <div class="npc-name">【資管系資深導師 NPC】：</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">管院 439 系辦公室</div>
+          </div>
+        </div>
+        <div class="npc-text">
+          大一必修包含<strong>程式設計、微積分、會計學、經濟學、中文思辨與專業英文</strong>。通常教務處系統會進行<strong>預先灌檔</strong>，初選開放時請務必上線檢查確認！
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">⚔️ 大一上學期主線課程 (Semester 1)</div>
+        <div class="section-tag">FALL SEMESTER</div>
+      </div>
+
+      <div class="quest-grid">
+        <div class="quest-card required">
+          <div>
+            <div class="card-top">
+              <span class="course-code">DEPT-REQ</span>
+              <span class="course-badge badge-req">系必修 3 學分</span>
+            </div>
+            <h3 class="course-title">💻 程式設計(上)</h3>
+            <div class="course-meta"><span>授課：鄭育評 老師</span><span>地點：管371</span></div>
+            <p class="course-desc">資管核心基石！從變數、判斷式、迴圈、陣列到函式指標，奠定程式思維。</p>
+          </div>
+          <div class="loot-tip">💡 破關秘訣：作業務必親自寫，打好基礎大二資料結構才輕鬆！</div>
+        </div>
+
+        <div class="quest-card required">
+          <div>
+            <div class="card-top">
+              <span class="course-code">COLLEGE-REQ</span>
+              <span class="course-badge badge-req">院必修 3+1 學分</span>
+            </div>
+            <h3 class="course-title">📐 微積分與實習(上)</h3>
+            <div class="course-meta"><span>授課：黃俊哲 老師</span><span>地點：管215</span></div>
+            <p class="course-desc">管院數理基石，涵蓋極限、微分技巧與商管應用。每週配有助教實習課。</p>
+          </div>
+          <div class="boss-warning">⚠️ BOSS警報：計算量大，助教實習課務必準時出席！</div>
+        </div>
+
+        <div class="quest-card required">
+          <div>
+            <div class="card-top">
+              <span class="course-code">COLLEGE-REQ</span>
+              <span class="course-badge badge-req">院必修 3+1 學分</span>
+            </div>
+            <h3 class="course-title">📒 會計學及實習(一)</h3>
+            <div class="course-meta"><span>授課：張清和 老師</span><span>地點：管268</span></div>
+            <p class="course-desc">商業語言核心！學習會計分錄、日記簿、損益表與資產負債表編製流程。</p>
+          </div>
+          <div class="loot-tip">💡 破關秘訣：借貸平衡觀念要清晰，對未來 ERP 系統很有幫助。</div>
+        </div>
+
+        <div class="quest-card required">
+          <div>
+            <div class="card-top">
+              <span class="course-code">COLLEGE-REQ</span>
+              <span class="course-badge badge-req">院必修 3+1 學分</span>
+            </div>
+            <h3 class="course-title">📈 經濟學與實習(上)</h3>
+            <div class="course-meta"><span>授課：王育民 老師</span><span>地點：管371</span></div>
+            <p class="course-desc">個體經濟學導論，探討市場供需、彈性分析與廠商利潤極大化決策。</p>
+          </div>
+          <div class="loot-tip">💡 破關秘訣：多練習圖形推導與經濟直覺分析。</div>
+        </div>
+
+        <div class="quest-card special">
+          <div>
+            <div class="card-top">
+              <span class="course-code">UNIV-REQ</span>
+              <span class="course-badge badge-gen">校共同必修 2 學分</span>
+            </div>
+            <h3 class="course-title">✍️ 中文思辨與表達一</h3>
+            <div class="course-meta"><span>管院專班 (張清財 老師等)</span><span>地點：管443</span></div>
+            <p class="course-desc">培養批判性思考、邏輯論證、文案寫作與議題思辨能力。</p>
+          </div>
+          <div class="loot-tip">💡 破關秘訣：團隊報告與課堂發表是加分重點。</div>
+        </div>
+
+        <div class="quest-card special">
+          <div>
+            <div class="card-top">
+              <span class="course-code">UNIV-REQ</span>
+              <span class="course-badge badge-gen">專業英文 1 學分</span>
+            </div>
+            <h3 class="course-title">🌐 資管跨域專業英文(一)</h3>
+            <div class="course-meta"><span>鄭妮妮 / 蔡曉晴 老師</span><span>地點：管443/圖資010</span></div>
+            <p class="course-desc">針對資管領域打造之專業英文課程，解析科技趨勢與專業英文書寫技巧。</p>
+          </div>
+          <div class="loot-tip">💡 破關秘訣：累積科技專有名詞與閱讀英文技術文件的能力。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: 通識教育 -->
+    <div id="gen-edu" class="tab-content">
+      <div class="npc-dialog">
+        <div class="npc-header">
+          <div class="npc-avatar">📜</div>
+          <div>
+            <div class="npc-name">【通識教育中心】：</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">通識學分門檻說明</div>
+          </div>
+        </div>
+        <div class="npc-text">
+          暨大通識分為<strong>全校共同課程（15學分）</strong>與<strong>四大通識領域（至少16學分）</strong>。每個領域至少修習 <strong>4 學分</strong>。建議大一每學期選 <strong>1 門（2學分）</strong> 最均衡！
+        </div>
+      </div>
+
+      <div class="quest-grid">
+        <div class="quest-card elective">
+          <div class="card-top"><span class="course-code">AREA-H</span><span class="course-badge badge-ele">至少 4 學分</span></div>
+          <h3 class="course-title">🎭 人文領域通識</h3>
+          <p class="course-desc">文學與藝術、歷史哲學與文化次領域。培養跨領域審美與批判反思能力。</p>
+          <div class="loot-tip">💡 調劑寫程式的腦力首選。</div>
+        </div>
+
+        <div class="quest-card elective">
+          <div class="card-top"><span class="course-code">AREA-S</span><span class="course-badge badge-ele">至少 4 學分</span></div>
+          <h3 class="course-title">⚖️ 社會領域通識</h3>
+          <p class="course-desc">法政與教育、社經與管理次領域。探討公民素養與社會運作機制。</p>
+          <div class="boss-warning">⚠️ 管院學生修社經類請注意不可與系上重疊。</div>
+        </div>
+
+        <div class="quest-card elective">
+          <div class="card-top"><span class="course-code">AREA-N</span><span class="course-badge badge-ele">至少 4 學分</span></div>
+          <h3 class="course-title">🧬 自然領域通識</h3>
+          <p class="course-desc">工程與科技、生命與科學次領域。資管系資訊科技部分可依校方規定抵免。</p>
+          <div class="loot-tip">💡 推薦天文、心理或環境生態課程。</div>
+        </div>
+
+        <div class="quest-card special">
+          <div class="card-top"><span class="course-code">AREA-F</span><span class="course-badge badge-gen">三選二，至少 4 學分</span></div>
+          <h3 class="course-title">🌿 暨大特色通識</h3>
+          <p class="course-desc">東南亞、綠概念、在地實踐三項次領域。修東南亞語言（泰/越/印尼語）可直接認抵！</p>
+          <div class="loot-tip">💡 暨大獨有特色課程。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: 體育學分修練道場 -->
+    <div id="pe-sports" class="tab-content">
+      <div class="npc-dialog">
+        <div class="npc-header">
+          <div class="npc-avatar">🏃</div>
+          <div>
+            <div class="npc-name">【體育健康中心 NPC】體育學分通關規則：</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">大一體育必修 + 大二至大四特色運動</div>
+          </div>
+        </div>
+        <div class="npc-text">
+          暨大體育學分規劃非常完整，共分為兩大階段：<br>
+          1. <strong>大一上、下學期為必修體育課</strong>（上學期為<strong>體能訓練</strong>，下學期為<strong>興趣選課</strong>）。<br>
+          2. <strong>大二到大四期間</strong>，畢業前必須在 <strong>6 大特色運動</strong> 中選修至少 <strong>2 堂課</strong>！
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">🏃 大一體育必修（大一上 & 大一下）</div>
+        <div class="section-tag">FRESHMAN PE (REQUIRED)</div>
+      </div>
+
+      <div class="quest-grid">
+        <div class="quest-card required">
+          <div class="card-top">
+            <span class="course-code">PE #101</span>
+            <span class="course-badge badge-req">大一上必修 · 1 學分</span>
+          </div>
+          <h3 class="course-title">🏋️ 大一體育(上)：基礎體能訓練</h3>
+          <div class="course-meta"><span>依學系分班授課</span><span>地點：體健中心/田徑場</span></div>
+          <p class="course-desc">配合校慶運動會與體適能檢測，進行心肺耐力、核心肌群、柔軟度等全方位身體素質訓練，建立健康運動習慣。</p>
+          <div class="loot-tip">💡 破關秘訣：依系所固定時段上課，準時出席配合訓練即可輕鬆過關！</div>
+        </div>
+
+        <div class="quest-card required">
+          <div class="card-top">
+            <span class="course-code">PE #102</span>
+            <span class="course-badge badge-req">大一下必修 · 1 學分</span>
+          </div>
+          <h3 class="course-title">🏀 大一體育(下)：興趣專項選課</h3>
+          <div class="course-meta"><span>依運動項目自由選課</span><span>地點：各專項運動場館</span></div>
+          <p class="course-desc">打破系所限制，依個人興趣自由選修：<strong>各類球類運動（籃球、排球、羽球、桌球、足球）或重訓健身</strong>等專項分班學習。</p>
+          <div class="loot-tip">💡 破關秘訣：大一下初選時記得搶選自己最拿手或最想練的球類/健身項目！</div>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-top:20px;">
+        <div class="section-title">🛶 大二至大四：六大特色運動（畢業前須修滿 2 堂）</div>
+        <div class="section-tag">FEATURED SPORTS (2 COURSES)</div>
+      </div>
+
+      <div class="quest-grid">
+        <div class="quest-card special">
+          <div class="card-top"><span class="course-code">SPORT #01</span><span class="course-badge badge-gen">日月潭水上實戰</span></div>
+          <h3 class="course-title">🛶 船艇 / 划船 / 獨木舟</h3>
+          <div class="course-meta"><span>地點：日月潭月牙灣水域</span></div>
+          <p class="course-desc">全台唯一日月潭水上實戰！由國手級教練指導划船與獨木舟技巧，感受波光與團隊協作。</p>
+          <div class="loot-tip">⭐ 暨大必搶傳奇神課！</div>
+        </div>
+
+        <div class="quest-card special">
+          <div class="card-top"><span class="course-code">SPORT #02</span><span class="course-badge badge-gen">專注力心流</span></div>
+          <h3 class="course-title">🏹 射箭 (Archery)</h3>
+          <div class="course-meta"><span>地點：戶外專業射箭場</span></div>
+          <p class="course-desc">在專業弓箭靶場學習站姿、拉弓與瞄準，鍛鍊沉著冷靜的心理素質與核心穩定度。</p>
+          <div class="loot-tip">⭐ 拍照帥氣，修身養性首選。</div>
+        </div>
+
+        <div class="quest-card special">
+          <div class="card-top"><span class="course-code">SPORT #03</span><span class="course-badge badge-gen">優雅揮桿</span></div>
+          <h3 class="course-title">⛳ 高爾夫球 (Golf)</h3>
+          <div class="course-meta"><span>地點：高爾夫練習場/大草皮</span></div>
+          <p class="course-desc">在校內練習場學習握桿、揮桿軌跡與擊球策略，掌握商務社交加分技能。</p>
+        </div>
+
+        <div class="quest-card special">
+          <div class="card-top"><span class="course-code">SPORT #04</span><span class="course-badge badge-gen">節奏與美感</span></div>
+          <h3 class="course-title">💃 國際標準舞</h3>
+          <div class="course-meta"><span>地點：體健中心韻律教室</span></div>
+          <p class="course-desc">學習恰恰、華爾滋舞步，提升身體協調性與姿態美感，跨系交流氣氛佳。</p>
+        </div>
+
+        <div class="quest-card special">
+          <div class="card-top"><span class="course-code">SPORT #05</span><span class="course-badge badge-gen">敏捷與耐力</span></div>
+          <h3 class="course-title">🎾 網球 (Tennis)</h3>
+          <div class="course-meta"><span>地點：校內標準網球場</span></div>
+          <p class="course-desc">正反拍抽球、截擊與雙打跑位教學，夕陽下揮汗暢快奔跑。</p>
+        </div>
+
+        <div class="quest-card special">
+          <div class="card-top"><span class="course-code">SPORT #06</span><span class="course-badge badge-gen">室內溫水池</span></div>
+          <h3 class="course-title">🏊 游泳 (Swimming)</h3>
+          <div class="course-meta"><span>地點：體健中心溫水泳池</span></div>
+          <p class="course-desc">室內溫水泳池分級教學，提升心肺耐力與水中自救技能。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: 選課時程 -->
+    <div id="timeline" class="tab-content">
+      <div class="pixel-table-wrapper">
+        <table class="pixel-table">
+          <thead>
+            <tr>
+              <th>選課階段</th>
+              <th>對象與機制</th>
+              <th>新生重要任務與注意事項</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--accent-yellow);">初選第一階段</strong></td>
+              <td>通識志願選填（亂數抽籤）</td>
+              <td>大一新生已修學分為0，積分以1計算（權重1.0）。建議多填幾個通識志願排序。</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--accent-yellow);">初選第二階段</strong></td>
+              <td>系所選修 & 預選確認</td>
+              <td>確認系必修（程式、微積分、會計、經濟）是否已正確灌檔，確認無衝堂。</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--secondary);">開學加退選</strong></td>
+              <td>即時搶課 + 人工加簽</td>
+              <td>開學前兩週有空位可即時加選；額滿課程可於第一週到堂找教授簽署加簽單。</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--accent-blue);">期中停修</strong></td>
+              <td>停修申請（成績單註記 W）</td>
+              <td>期中考後若負載過重可申請停修，停修後學分仍不得低於學期下限（15/16學分）。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 5: 戰力試算器 -->
+    <div id="simulator" class="tab-content">
+      <div class="sim-box">
+        <h3 style="color:#fff; font-family:var(--display-font); font-size:1.25rem; margin-bottom:14px;">🎯 勾選大一上預計修習科目</h3>
+        
+        <div class="sim-checklist">
+          <label class="sim-item">
+            <input type="checkbox" checked onchange="calcCredits()" data-credits="3">
+            <div>
+              <div class="sim-item-title">💻 程式設計(上)</div>
+              <div class="sim-item-sub">系必修 · 3 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" checked onchange="calcCredits()" data-credits="4">
+            <div>
+              <div class="sim-item-title">📐 微積分與實習(上)</div>
+              <div class="sim-item-sub">院必修 · 3+1 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" checked onchange="calcCredits()" data-credits="4">
+            <div>
+              <div class="sim-item-title">📒 會計學及實習(一)</div>
+              <div class="sim-item-sub">院必修 · 3+1 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" checked onchange="calcCredits()" data-credits="4">
+            <div>
+              <div class="sim-item-title">📈 經濟學與實習(上)</div>
+              <div class="sim-item-sub">院必修 · 3+1 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" checked onchange="calcCredits()" data-credits="2">
+            <div>
+              <div class="sim-item-title">✍️ 中文思辨與表達一</div>
+              <div class="sim-item-sub">校共同必修 · 2 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" checked onchange="calcCredits()" data-credits="1">
+            <div>
+              <div class="sim-item-title">🌐 資管跨域專業英文(一)</div>
+              <div class="sim-item-sub">校共同/專業 · 1 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" checked onchange="calcCredits()" data-credits="1">
+            <div>
+              <div class="sim-item-title">🏋️ 大一體育(上)：體能訓練</div>
+              <div class="sim-item-sub">校共同必修 · 1 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" onchange="calcCredits()" data-credits="2">
+            <div>
+              <div class="sim-item-title">🏛️ 通識課程 A</div>
+              <div class="sim-item-sub">通識選修 · 2 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" onchange="calcCredits()" data-credits="2">
+            <div>
+              <div class="sim-item-title">🌿 通識課程 B</div>
+              <div class="sim-item-sub">通識選修 · 2 學分</div>
+            </div>
+          </label>
+
+          <label class="sim-item">
+            <input type="checkbox" onchange="calcCredits()" data-credits="3">
+            <div>
+              <div class="sim-item-title">🌐 第二外語 (日/韓/德/法/泰/越)</div>
+              <div class="sim-item-sub">共同選修 · 3 學分</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="sim-score-card">
+          <div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">目前勾選總學分</div>
+            <span class="score-num" id="total-credits-display">19</span>
+          </div>
+          <div>
+            <span class="score-status status-good" id="status-badge">✨ 黃金完美比例 (Optimal)</span>
+          </div>
+          <div style="font-size:0.86rem; color:var(--text-main); flex:1 1 100%;" id="status-desc">
+            戰力平衡！涵蓋大一必修基礎與語文，留有充足時間消化程式作業與參與大學社交活動！
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>國立暨南國際大學資訊管理學系 新生選課指南攻略網頁</p>
+      <div class="footer-author">★ 本網頁由 djieee 所有 · DESIGNED FOR NCNU IM ROOKIES ★</div>
+    </footer>
+  </div>
+
+  <script>
+    // 跨平台（手機/PC）通用分頁切換邏輯
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const targetTab = this.getAttribute('data-tab');
+
+          tabButtons.forEach(b => b.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+
+          this.classList.add('active');
+          const activeContent = document.getElementById(targetTab);
+          if (activeContent) {
+            activeContent.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // 學分試算函數
+    function calcCredits() {
+      const checkboxes = document.querySelectorAll('.sim-checklist input[type="checkbox"]');
+      let total = 0;
+      checkboxes.forEach(cb => {
+        if (cb.checked) {
+          total += parseInt(cb.getAttribute('data-credits') || 0);
+        }
+      });
+
+      const display = document.getElementById('total-credits-display');
+      const badge = document.getElementById('status-badge');
+      const desc = document.getElementById('status-desc');
+
+      display.innerText = total;
+
+      if (total < 16) {
+        badge.className = 'score-status status-danger';
+        badge.innerText = '⚠️ 學分低於下限';
+        desc.innerText = '注意！暨大大一每學期最低限制通常為 15~16 學分，請再勾選通識或必修以符合規定。';
+      } else if (total >= 16 && total <= 21) {
+        badge.className = 'score-status status-good';
+        badge.innerText = '✨ 黃金完美比例';
+        desc.innerText = '戰力平衡！涵蓋大一必修三本柱與語文，留有充足時間消化程式作業與參與活動。';
+      } else if (total >= 22 && total <= 25) {
+        badge.className = 'score-status status-low';
+        badge.innerText = '⚡ 高能修練模式';
+        desc.innerText = '功課量偏重！微積分、會計與程式設計作業同時來襲時會很刺激，需良好時間管理。';
+      } else {
+        badge.className = 'score-status status-danger';
+        badge.innerText = '☠️ 超過學分上限';
+        desc.innerText = '超過 25 學分上限！除非前學期成績優異獲准超修，否則系統將無法選入。';
+      }
+    }
+  </script>
+</body>
+</html>
+"""
+
+# 將 HTML 寫入檔案並自動於瀏覽器開啟
+output_filename = "選課.html"
+with open(output_filename, "w", encoding="utf-8") as f:
+    f.write(html_code)
+
+print(f"✅ 網頁已成功生成：{os.path.abspath(output_filename)}")
+print("🚀 正在為您開啟瀏覽器預覽...")
+webbrowser.open(f"file://{os.path.abspath(output_filename)}")
